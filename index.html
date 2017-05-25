@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>My Chat</title>
+<link rel="shortcut icon" href="favicon.png">
+<script type="text/javascript" src="jquery-3.1.0.min.js"></script>
+<script type="text/javascript">
+    window.addEventListener("load", function() {
+        // create websocket instance
+        var mySocket = new WebSocket("ws://localhost:8080/wsapi");
+        // add event listener reacting when message is received
+        mySocket.onmessage = function (event) {
+            // show message in chatbox(received msg)
+            cnt = $('#output').html()+'<div class="received_msg">'+event.data+'</div>'
+            $('#output').html(cnt)
+
+        };
+        var form = document.getElementsByClassName("chat_form");
+        var input = document.getElementById("input");
+        scrolled=$('#output').height()
+        form[0].addEventListener("submit", function (e) {
+            // on forms submission send input to our server
+            input_text = input.value;
+            mySocket.send(input_text);
+            e.preventDefault()
+
+            // show message in chatbox(sending msg)
+            $('#output').append('<div class="sender_msg">'+input_text+'</div>')
+            $('#input').val('').focus()
+            scrolled += 100
+            $('#output').animate({ 
+                scrollTop: scrolled 
+            });
+        })
+    });
+</script>
+<style>
+html,body{font-family: monospace;}
+.chat_box{border:1px solid #9E9E9E;width:215px;overflow-y:auto;height:400px;padding:10px;background: rgba(158, 158, 158, 0.11);}
+.chat_form input{padding: 10px;width: 213px;}
+.sender_msg{color: black;clear: both;float: right; font-weight: bold;}
+.received_msg{color: green;clear: both;float: left;font-weight: bold;}
+</style>
+</head>
+<body>
+    <div id="output" class="chat_box"></div>
+    <form class="chat_form">
+        <input id="input" autofocus="" autocomplete="false" placeholder="Type here"></input>
+        <!-- <input type="submit"></input> -->
+    </form>    
+</body>
+</html>
